@@ -68,12 +68,16 @@
             <parent link="laser_cylinder_link"/>
             <child link="laser_link"/>
         </joint>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6e24b4ef3faa9fc8867cb16c1a7927186917f4e5
         <joint name="laser_cylinder_joint" type="fixed">
             <origin xyz="${xyz}" rpy="0.0 0.0 0.0"/>
             <parent link="base_link"/>
             <child link="laser_cylinder_link"/>
         </joint>
+<<<<<<< HEAD
 
         <gazebo reference='laser_cylinder_link'>
             <material>Gazebo/Black</material>
@@ -82,5 +86,7 @@
             <material>Gazebo/Black</material>
         </gazebo>
         
+=======
+>>>>>>> 6e24b4ef3faa9fc8867cb16c1a7927186917f4e5
     </xacro:macro>
 </robot>

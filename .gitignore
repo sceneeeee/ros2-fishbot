@@ -1,66 +1,12 @@
-# =========================
-# ROS 2 / colcon
-# =========================
 build/
 install/
 log/
 
-# colcon / ament cache
-.colcon/
-.colcon_install_layout
-
-# =========================
-# Python
-# =========================
-__pycache__/
 *.pyc
-*.pyo
-*.pyd
-
-# =========================
-# C / C++
-# =========================
-*.o
-*.so
-*.a
-*.out
-*.exe
-
-# =========================
-# CMake
-# =========================
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-
-# =========================
-# VS Code
-# =========================
-.vscode/
-
-# =========================
-# JetBrains
-# =========================
-.idea/
-
-# =========================
-# Linux / system files
-# =========================
-.DS_Store
-Thumbs.db
-
-# =========================
-# Temporary files
-# =========================
+__pycache__/
 *.swp
 *.swo
-*~
-*.tmp
+.vscode/
+.idea/
 
-# =========================
-# ROS logs / bag files
-# =========================
-*.log
-*.bag
-*.db3
+
