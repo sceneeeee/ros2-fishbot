@@ -32,19 +32,15 @@
             <xacro:box_inertia m="0.1" w="0.02" h="0.10" d="0.02"/>
         </link>
 
-<<<<<<< HEAD
         <link name="camera_optical_link">
             
         </link>
 
-=======
->>>>>>> 6e24b4ef3faa9fc8867cb16c1a7927186917f4e5
         <joint name="camera_joint" type="fixed">
             <origin xyz="${xyz}" rpy="0.0 0.0 0.0"/>
             <parent link="base_link"/>
             <child link="camera_link"/>
         </joint>
-<<<<<<< HEAD
 
         <joint name="camera_optical_joint" type="fixed">
             <origin xyz="0.0 0.0 0.0" rpy="${-pi/2} 0.0 ${-pi/2}"/>
@@ -54,7 +50,4 @@
     </xacro:macro>
 
 
-=======
-    </xacro:macro>
->>>>>>> 6e24b4ef3faa9fc8867cb16c1a7927186917f4e5
 </robot>
