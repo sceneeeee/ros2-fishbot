@@ -8,6 +8,7 @@ from geometry_msgs.msg import TransformStamped # 消息接口
 from tf_transformations import euler_from_quaternion,quaternion_from_euler # 四元数转欧拉角, 欧拉角转四元数
 from rclpy.duration import Duration
 import math # 角度转弧度
+from autopatrol_interfaces.srv import SpeechText
 
 class PatrolNode(BasicNavigator):
     def __init__(self, node_name="patrol_node"):
@@ -21,6 +22,7 @@ class PatrolNode(BasicNavigator):
         self.patrol_points = self.get_parameter('patrol_points').value
         self.buffer_ = Buffer() # 创建TF变换缓冲区
         self.listener_ = TransformListener(self.buffer_, self) # 创建TF变换监听器
+        self.speech_client_ = self.create_client(SpeechText, 'speech_text') # 创建语音服务客户端
 
     def get_pose_by_xyyaw(self, x, y, yaw):
         pose = PoseStamped()
@@ -81,19 +83,37 @@ class PatrolNode(BasicNavigator):
                 self.get_logger().error(f"Failed to get transform: {str(e)}")
 
 
-
-    
+    def speech_text(self, text):
+        while not self.speech_client_.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('Waiting for speech_text service...')
+        
+        request = SpeechText.Request()
+        request.text = text
+        future = self.speech_client_.call_async(request)
+        rclpy.spin_until_future_complete(future)
+        if future.result() is not None:
+            response = future.result()
+            if response.result:
+                self.get_logger().info('Speech synthesis successful')
+            else:
+                self.get_logger().error('Speech synthesis failed')
+        else:
+            self.get_logger().error(f'Service call failed: {future.exception()}')
     
 def main():
     rclpy.init()
     patrol = PatrolNode()
+    patrol.speech_text("正在准备初始化位置")
     patrol.init_robot_pose()
+    patrol.speech_text("初始化位置完成")
+
 
     while rclpy.ok():
         patrol_points = patrol.get_target_point()
         for point in patrol_points:
             x,y,yaw = point[0], point[1], point[2]
             target_pose = patrol.get_pose_by_xyyaw(x, y, yaw)
+            patrol.speech_text(f"正在前往巡逻点，坐标：{x}, {y}，朝向：{yaw}")
             patrol.nav_to_pose(target_pose)
 
     rclpy.shutdown()

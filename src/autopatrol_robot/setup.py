@@ -26,6 +26,7 @@ setup(
     entry_points={
         'console_scripts': [
             'patrol_node = autopatrol_robot.patrol_node:main',
+            'speaker = autopatrol_robot.speaker:main',
         ],
     },
 )
