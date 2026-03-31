@@ -16,7 +16,7 @@ class Speaker(Node):
         self.get_logger().info(f'Received text to speak: "{text}"')
 
         self.speaker_.say(text)
-        self.speaker.wait()
+        self.speaker_.wait()
 
         
         response.result = True

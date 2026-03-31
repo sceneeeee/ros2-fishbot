@@ -9,6 +9,9 @@ from tf_transformations import euler_from_quaternion,quaternion_from_euler # 四
 from rclpy.duration import Duration
 import math # 角度转弧度
 from autopatrol_interfaces.srv import SpeechText
+from sensor_msgs.msg import Image # ROS图像消息
+from cv_bridge import CvBridge # ROS图像消息与OpenCV图像之间的转换
+import cv2 # save img
 
 class PatrolNode(BasicNavigator):
     def __init__(self, node_name="patrol_node"):
@@ -18,11 +21,33 @@ class PatrolNode(BasicNavigator):
             0.0, 0.0, 0.0, 
             1.0, 1.0, 1.57
             ])
+        self.declare_parameter('img_save_path', '')
         self.initial_point = self.get_parameter('initial_point').value
         self.patrol_points = self.get_parameter('patrol_points').value
+        self.img_save_path = self.get_parameter('img_save_path').value
         self.buffer_ = Buffer() # 创建TF变换缓冲区
         self.listener_ = TransformListener(self.buffer_, self) # 创建TF变换监听器
         self.speech_client_ = self.create_client(SpeechText, 'speech_text') # 创建语音服务客户端
+        self.cv_bridge_ = CvBridge() # 创建CV桥接器
+        self.latest_img_ = None # 存储最新的图像数据
+        self.image_sub_ = self.create_subscription(
+            Image,
+            '/camera_sensor/image_raw',
+            self.image_callback,
+            1
+        )
+
+    def image_callback(self, msg):
+        self.get_logger().info('Received image data')
+        self.latest_img_ = msg
+
+    def record_image(self):
+        if self.latest_img_ is not None:
+            pose = self.get_current_pose()
+            cv_img = self.cv_bridge_.imgmsg_to_cv2(self.latest_img_)
+            cv2.imwrite(
+                f"{self.img_save_path}img_{pose.translation.x:3.2f}_{pose.translation.y:3.2f}.png", 
+                cv_img)
 
     def get_pose_by_xyyaw(self, x, y, yaw):
         pose = PoseStamped()
@@ -90,7 +115,7 @@ class PatrolNode(BasicNavigator):
         request = SpeechText.Request()
         request.text = text
         future = self.speech_client_.call_async(request)
-        rclpy.spin_until_future_complete(future)
+        rclpy.spin_until_future_complete(self, future)
         if future.result() is not None:
             response = future.result()
             if response.result:
@@ -115,5 +140,8 @@ def main():
             target_pose = patrol.get_pose_by_xyyaw(x, y, yaw)
             patrol.speech_text(f"正在前往巡逻点，坐标：{x}, {y}，朝向：{yaw}")
             patrol.nav_to_pose(target_pose)
+            patrol.speech_text("已到达巡逻点，正在记录图像")
+            patrol.record_image()
+            patrol.speech_text("图像记录完成")
 
     rclpy.shutdown()
