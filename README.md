@@ -1,21 +1,35 @@
-# ros2-fishbot-description
+# ros2-fishbot
 
-一个基于 **ROS 2 Humble** 的 FishBot 学习与实践工作区，覆盖了从 **URDF / Xacro 机器人描述建模**、**Gazebo 仿真**、**ros2_control 差速控制**，到 **Nav2 导航** 与 **自动巡逻应用** 的完整基础链路。
+一个基于 **ROS 2 Humble** 的 FishBot 学习与实践工作区，覆盖了从 **URDF / Xacro 机器人描述建模**、**Gazebo 仿真**、**ros2_control 差速控制**，到 **Nav2 导航**、**应用层导航示例** 与 **自动巡逻应用** 的完整基础链路。
 
-这个仓库最初从 `fishbot_description` 起步，现在已经扩展为一个包含多个 ROS 2 包的工作区，适合作为移动机器人方向的入门项目，也可以作为后续继续学习 **SLAM、Nav2、路径规划、自动巡逻、多传感器融合** 的实验基础。
+> 当前正式发布版本：**v2.0.0**
+
+这个仓库最初从 `fishbot_description` 起步，现在已经扩展为一个包含多个 ROS 2 包的完整工作区，适合作为移动机器人方向的入门项目，也可以作为后续继续学习 **SLAM、Nav2、路径规划、自动巡逻、多传感器融合** 的实验基础。
+
+---
+
+## v2.0.0 版本亮点
+
+- 完整整理项目文档，统一 README 结构与使用说明
+- 统一各 ROS 2 包版本号到 `2.0.0`
+- 清理多个 `package.xml` / `setup.py` 中的 `TODO` 占位描述
+- 补齐关键运行依赖声明，便于 `rosdep` 与后续发布维护
+- 明确导航、应用层控制、自动巡逻与自定义接口之间的关系
+- 为 GitHub Release 准备独立发布说明与 About 文案
 
 ---
 
 ## 项目概览
 
-当前工作区包含以下几个核心包：
+当前工作区包含以下核心包：
 
 | Package | 作用 |
 |---|---|
 | `fishbot_description` | FishBot 机器人模型描述、RViz 显示、Gazebo 场景与 `ros2_control` 配置 |
-| `fishbot_navigation2` | Nav2 启动文件、地图与导航参数 |
-| `fishbot_application` | 基于 `nav2_simple_commander` 的应用示例，如设置初始位姿、单点导航、航点跟随、获取机器人位姿 |
-| `autopatrol_robot` | 基于参数配置的自动巡逻节点 |
+| `fishbot_navigation2` | Nav2 启动文件、地图、导航参数与 RViz 启动入口 |
+| `fishbot_application` | 基于 `nav2_simple_commander` 的 Python 应用示例，如设置初始位姿、单点导航、航点跟随、获取机器人位姿 |
+| `autopatrol_interfaces` | 自动巡逻相关的自定义服务接口，当前包含 `SpeechText.srv` |
+| `autopatrol_robot` | 基于参数配置的自动巡逻节点，支持巡逻播报与图像记录 |
 
 ---
 
@@ -35,14 +49,17 @@
 - Nav2 导航基础集成
 - 单目标导航与航点跟随示例
 - 基于参数文件的自动巡逻节点
+- 语音播报服务与巡逻图像采集流程
 
 ---
 
 ## 目录结构
 
 ```text
-ros2-fishbot-description/
+ros2-fishbot/
 ├── README.md
+├── CHANGELOG.md
+├── RELEASE_v2.0.0.md
 ├── src/
 │   ├── fishbot_description/
 │   │   ├── config/
@@ -55,9 +72,12 @@ ros2-fishbot-description/
 │   │   └── maps/
 │   ├── fishbot_application/
 │   │   └── fishbot_application/
+│   ├── autopatrol_interfaces/
+│   │   └── srv/
 │   └── autopatrol_robot/
 │       ├── autopatrol_robot/
-│       └── config/
+│       ├── config/
+│       └── launch/
 └── .gitignore
 ```
 
@@ -67,9 +87,10 @@ ros2-fishbot-description/
 
 - Ubuntu 22.04
 - ROS 2 Humble
-- colcon
-- xacro
-- rviz2
+- `colcon`
+- `rosdep`
+- `xacro`
+- `rviz2`
 - Gazebo Classic + `gazebo_ros`
 - `gazebo_ros2_control`
 - `ros2_controllers`
@@ -77,11 +98,17 @@ ros2-fishbot-description/
 - `nav2_simple_commander`
 - `tf_transformations`
 
+自动巡逻相关功能额外会用到：
+
+- `cv_bridge`
+- OpenCV Python
+- `espeakng` Python 语音播报模块
+
 ---
 
 ## 依赖安装
 
-如果你使用的是 ROS 2 Humble 桌面版环境，仍建议补充以下依赖：
+如果你使用的是 ROS 2 Humble 桌面版环境，建议先安装基础依赖：
 
 ```bash
 sudo apt update
@@ -93,7 +120,16 @@ sudo apt install \
   ros-humble-nav2-bringup \
   ros-humble-nav2-simple-commander \
   ros-humble-tf-transformations \
-  ros-humble-xacro
+  ros-humble-xacro \
+  ros-humble-cv-bridge
+```
+
+如需使用自动巡逻中的图像保存与语音播报功能，还需要补充 OpenCV Python 与 `espeakng`。
+
+如果系统已经正确配置 `rosdep`，也可以在工作区根目录执行：
+
+```bash
+rosdep install --from-paths src --ignore-src -r -y
 ```
 
 ---
@@ -103,7 +139,7 @@ sudo apt install \
 在工作区根目录执行：
 
 ```bash
-colcon build
+colcon build --symlink-install
 source install/setup.bash
 ```
 
@@ -206,8 +242,6 @@ source install/setup.bash
 ros2 run fishbot_application waypoint_follower
 ```
 
-该示例会依次下发多个 `PoseStamped` 航点，用于验证基础巡航能力。
-
 ### 5. 获取当前机器人位姿
 
 ```bash
@@ -219,21 +253,38 @@ ros2 run fishbot_application get_robot_pose
 
 ---
 
-## 导航调试与问题总结
+## 导航调试记录
 
-项目初期，局部路径跟随器使用的是 **DWB**。但在室内导航过程中，机器人在靠近墙边行驶时经常会出现卡住的问题。为了解决这个现象，我花了较长时间反复调试相关参数，但始终无法稳定修复。
+项目初期，局部路径跟随器使用的是 **DWB**。但在室内导航过程中，机器人在靠近墙边行驶时经常会出现卡住的问题。经过多轮参数调试后，当前版本改为使用 **RPP（Regulated Pure Pursuit）** 作为局部控制器，路径跟随表现更平滑，也更适合当前室内导航与巡逻场景。
 
-后来我将局部控制器从 **DWB** 更换为 **RPP（Regulated Pure Pursuit）**。切换之后，这个靠墙卡住的问题得到了明显改善，机器人的路径跟随表现也更加平滑、稳定，更适合室内导航与巡逻场景。
+这部分参数位于：
 
-这次调整也说明了一个比较重要的实践经验：相比于反复调节一个不太适合当前场景的控制器参数，直接选择更合适的局部控制器，往往会更有效。
+```text
+src/fishbot_navigation2/config/nav2_params.yaml
+```
 
 ---
 
 ## 自动巡逻
 
-`autopatrol_robot` 提供了一个基于参数文件的自动巡逻节点。
+`autopatrol_robot` 提供了一个基于参数文件的自动巡逻节点，结合 `autopatrol_interfaces` 中的 `SpeechText.srv` 可以完成巡逻播报流程。
 
-### 1. 启动自动巡逻
+### 1. 启动导航环境
+
+请先确保以下节点已经正常运行：
+
+- Gazebo 仿真
+- Nav2 导航
+- 地图定位正常
+
+### 2. 启动语音服务节点
+
+```bash
+source install/setup.bash
+ros2 run autopatrol_robot speaker
+```
+
+### 3. 启动自动巡逻节点
 
 ```bash
 source install/setup.bash
@@ -242,62 +293,61 @@ ros2 run autopatrol_robot patrol_node \
   --params-file $(ros2 pkg prefix autopatrol_robot)/share/autopatrol_robot/config/patrol_config.yaml
 ```
 
-### 2. 巡逻参数说明
+### 4. 巡逻参数说明
 
-`patrol_config.yaml` 中包含：
+`patrol_config.yaml` 中当前包含：
 
 - `initial_point`：机器人初始位姿 `[x, y, yaw]`
 - `patrol_points`：巡逻点序列，按 `[x1, y1, yaw1, x2, y2, yaw2, ...]` 组织
+- `use_sim_time`：是否使用仿真时间
 
-你可以根据自己的地图修改巡逻路线。
+如果你希望保存巡逻过程中的图像，可以继续在参数中补充 `img_save_path`。
 
 ---
 
-## fishbot_description 包说明
+## 包说明
 
-`fishbot_description` 是当前工作区的基础包，核心内容包括：
+### `fishbot_description`
 
-### 1. 基础建模练习
+基础包，负责：
 
-保留了基础 URDF / Xacro 学习文件：
+- URDF / Xacro 机器人建模
+- 传感器与执行器装配
+- Gazebo 仿真入口
+- `ros2_control` 控制链路接入
 
-- `urdf/first_robot.urdf`
-- `urdf/first_robot.xacro`
+### `fishbot_navigation2`
 
-### 2. 模块化整机装配
+导航包，负责：
 
-`urdf/fishbot/fishbot.urdf.xacro` 作为整机装配入口，统一组合：
+- Nav2 启动入口
+- 地图与导航参数管理
+- RViz 启动配置
+- RPP 控制器参数配置
 
-- base
-- sensors
-- actuators
-- Gazebo plugins
-- ros2_control
+### `fishbot_application`
 
-### 3. 已集成传感器
+应用层示例包，负责：
 
-- Camera
-- IMU
-- Laser
+- 设置初始位姿
+- 单点导航
+- 航点跟随
+- TF 获取机器人位姿
 
-### 4. 已集成执行器
+### `autopatrol_interfaces`
 
-- left / right wheel
-- caster wheels
+自定义接口包，当前包含：
 
-### 5. 控制链路
+- `SpeechText.srv`
 
-通过以下文件完成控制链路接入：
+### `autopatrol_robot`
 
-- `urdf/fishbot/fishbot.ros2_control.xacro`
-- `config/fishbot_ros2_controller.yaml`
-- `launch/gazebo_sim.launch.py`
+自动巡逻包，负责：
 
-当前已配置：
-
-- `fishbot_joint_state_broadcaster`
-- `fishbot_diff_drive_controller`
-- `fishbot_effort_controller`（已预留）
+- 读取巡逻点参数
+- 调用 Nav2 巡逻导航
+- 调用语音服务播报
+- 记录巡逻过程图像
 
 ---
 
@@ -311,6 +361,7 @@ ros2 run autopatrol_robot patrol_node \
 - Nav2 导航基础运行
 - Python 应用层导航调用
 - 参数化自动巡逻
+- 自定义服务接口扩展
 
 这意味着它已经可以作为下一阶段继续扩展的基础平台。
 
@@ -325,7 +376,7 @@ ros2 run autopatrol_robot patrol_node \
 - 补充项目截图、录屏和动图
 - 引入行为树任务编排
 - 补充更多应用层导航示例
-- 进一步完善包级元数据与文档说明
+- 将自动巡逻拓展为完整任务链路
 
 ---
 
