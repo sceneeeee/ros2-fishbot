@@ -5,7 +5,7 @@ package_name = 'autopatrol_robot'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='2.0.0',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -18,7 +18,7 @@ setup(
     zip_safe=True,
     maintainer='evens',
     maintainer_email='peterufo060419@gmail.com',
-    description='TODO: Package description',
+    description='Configurable FishBot autopatrol package with speech and image recording helpers.',
     license='Apache-2.0',
     extras_require={
         'test': [

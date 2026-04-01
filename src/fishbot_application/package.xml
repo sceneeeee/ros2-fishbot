@@ -2,10 +2,16 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>fishbot_application</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <version>2.0.0</version>
+  <description>Python navigation application demos for FishBot, including initial pose setup, single-goal navigation, waypoint following, and robot pose querying.</description>
   <maintainer email="peterufo060419@gmail.com">evens</maintainer>
   <license>Apache-2.0</license>
+
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav2_simple_commander</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>tf_transformations</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
