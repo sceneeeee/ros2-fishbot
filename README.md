@@ -29,7 +29,6 @@
 ```text
 ros2-fishbot/
 ├── README.md
-├── ABOUT.md
 ├── img_*.png
 └── src/
     ├── fishbot_description/
