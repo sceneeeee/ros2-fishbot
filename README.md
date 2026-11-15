@@ -1,8 +1,10 @@
 # ros2-fishbot
 
+**项目状态：已结项（2026-11-16）——仿真软件工程成果完成，未进行实体 FishBot 硬件部署。** 结项范围见 [docs/project-closeout.md](docs/project-closeout.md)。
+
 `ros2-fishbot` 是一个基于 **ROS 2 Humble** 的 FishBot 移动机器人学习与实践工作区。项目把机器人描述、Gazebo 仿真、`ros2_control` 差速底盘控制、Nav2 导航、Python 导航示例、自定义服务接口和自动巡逻应用放在同一个 ROS 2 workspace 中，适合用来系统练习移动机器人软件栈的完整链路。
 
-当前仓库已经从单一的 `fishbot_description` 学习包扩展为一个可运行、可继续迭代的 FishBot 实验平台。你可以用它学习 URDF / Xacro 建模、传感器挂载、仿真控制、地图导航、航点任务、语音播报和巡逻图像采集。
+当前仓库已经从单一的 `fishbot_description` 学习包扩展为包含机器人描述、Gazebo Classic、ros2_control、Nav2、导航应用和自动巡逻功能的 ROS 2 workspace。项目按仿真软件工程范围结项；README 中的命令描述仓库提供的启动路径，不代表本次结项重新执行了全部运行验收。
 
 > 当前包版本：`2.0.0`
 >
@@ -417,16 +419,18 @@ ros2 topic list | grep camera
 
 ---
 
-## 适合继续扩展的方向
+## 结项范围与未完成事项
 
-- 接入 SLAM Toolbox，补齐建图与保存地图流程。
-- 增加键盘遥控或手柄遥控节点。
-- 为巡逻任务增加暂停、恢复、取消和任务状态反馈。
-- 把巡逻点从一维数组升级为更清晰的结构化配置。
-- 使用行为树编排巡逻、播报、拍照和异常处理。
-- 增加更复杂的 Gazebo 场景、障碍物和传感器噪声。
-- 补充 CI、格式化、lint 和基础测试。
-- 为 README 增加截图、录屏或 GIF。
+已整理的工程模块包括 URDF/Xacro 机器人描述、Gazebo Classic 室内场景、ros2_control 差速驱动、Nav2 地图导航、BasicNavigator 单点/航点示例，以及基于自定义 SpeechText 服务的自动巡逻、语音播报和图像保存代码。
+
+本仓库是仿真工作区，不包含已购买或已部署的实体 FishBot。以下事项不属于已交付成果：
+
+- 599 元实体 FishBot 采购、组装、标定和实机测试；
+- 真实传感器、实体底盘、实体 Nav2 定位与导航验证；
+- SLAM Toolbox 建图流程（README 仅列为未来扩展）；
+- 机器人安全性、长期稳定性和实机巡逻验证。
+
+详细范围和工程成果清单见 [项目结项报告](docs/project-closeout.md)。
 
 ---
 
